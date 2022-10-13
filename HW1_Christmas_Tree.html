@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+</head>
+
+<body>
+    <h1 style="text-align:center">Christmas Tree</h1>
+
+<button id='power'>Power</button>
+    <div id="bkgd" style="position:absolute;  width:100vw; height: 100vh;background:pink">
+    
+      <img src="https://i.imgur.com/dc5TkeX.jpg" style=" position:absolute;width:100%; height: 100%;3;z-index:0">
+      
+      <img src="https://i.imgur.com/Qnxa6x4.png" style="position:absolute;top:87%;left:30%;width:10%;z-index:1" />
+      <img src=" https://i.imgur.com/Fcr5giC.png" style=" position:absolute;top:85%;left:60%;width:15vw;z-index:2" />
+      
+
+      <!--
+<div style="position:absolute; top:15%; left:50%; background-color:hsl(270, 90%, 80%); width:25px; height:25px; border-radius:30px"></div>
+
+<div style="position:absolute; top:30%; left:45%; background-color:blue; width:25px; height:25px; border-radius:30px"></div>
+
+<div style="position:absolute; top:50%; left:55%; background-color:yellow; width:25px; height:25px; border-radius:30px"></div>
+
+<div style="position:absolute; top:65%; left:40%; background-color:red; width:25px; height:25px; border-radius:30px"></div>
+
+<div style="position:absolute; top:80%; left:60%; background-color:purple; width:25px; height:25px; border-radius:30px"></div>
+-->
+    </div>
+    
+    <div style="position:absolute;  width:100vw; height: 100vh;">
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script>
+        class Lamp {
+
+  constructor() {
+  //LIGHT1
+    this.name = 'light1';
+    this.myStatus = false;
+
+    let el = document.createElement('div');
+    el.id = this.name;
+
+    let bkgd = document.getElementById('bkgd');
+    bkgd.appendChild(el);
+    this.hue = Math.random() * 360;
+
+    // styles
+    el.setAttribute("style", `background-color: hsl(${this.hue}, 90%, 50%); width:25px; height:25px;border-radius:30px`);
+    this.left = Math.random() * 0.8;
+    this.top = Math.random() * 0.8;
+    el.style.position = "absolute";
+    el.style.left = '50%';
+    el.style.top = '15%';
+
+    //light2
+    this.name2 = 'light2';
+    this.myStatus = false;
+    let el2 = document.createElement('div');
+    el2.id = this.name2;
+
+    let bkgd2 = document.getElementById('bkgd');
+    bkgd2.appendChild(el2);
+    this.hue2 = Math.random() * 360;
+
+    // styles
+    el2.setAttribute("style", `background-color: hsl(${this.hue}, 90%, 50%); width:25px; height:25px;border-radius:30px`);
+    this.left = Math.random() * 0.8;
+    this.top = Math.random() * 0.8;
+    el2.style.position = "absolute";
+    el2.style.left = '45%';
+    el2.style.top = '30%';
+
+    //light3
+    this.name3 = 'light3';
+    this.myStatus = false;
+    let el3 = document.createElement('div');
+    el3.id = this.name3;
+
+    let bkgd3 = document.getElementById('bkgd');
+    bkgd3.appendChild(el3);
+    this.hue3 = Math.random() * 360;
+
+    // styles
+    el3.setAttribute("style", `background-color: hsl(${this.hue}, 90%, 50%); width:25px; height:25px;border-radius:30px`);
+    this.left = Math.random() * 0.8;
+    this.top = Math.random() * 0.8;
+    el3.style.position = "absolute";
+    el3.style.left = '55%';
+    el3.style.top = '50%';
+
+    //light4
+    this.name4 = 'light4';
+    this.myStatus = false;
+    let el4 = document.createElement('div');
+    el4.id = this.name4;
+
+    let bkgd4 = document.getElementById('bkgd');
+    bkgd4.appendChild(el4);
+    this.hue4 = Math.random() * 360;
+
+    // styles
+    el4.setAttribute("style", `background-color: hsl(${this.hue}, 90%, 50%); width:25px; height:25px;border-radius:30px`);
+    this.left = Math.random() * 0.8;
+    this.top = Math.random() * 0.8;
+    el4.style.position = "absolute";
+    el4.style.left = '40%';
+    el4.style.top = '65%';
+
+    //light5
+    this.name5 = 'light5';
+    this.myStatus = false;
+    let el5 = document.createElement('div');
+    el5.id = this.name5;
+
+    let bkgd5 = document.getElementById('bkgd');
+    bkgd5.appendChild(el5);
+    this.hue5 = Math.random() * 360;
+
+    // styles
+    el5.setAttribute("style", `background-color: hsl(${this.hue}, 90%, 50%); width:25px; height:25px;border-radius:30px`);
+    this.left = Math.random() * 0.8;
+    this.top = Math.random() * 0.8;
+    el5.style.position = "absolute";
+    el5.style.left = '60%';
+    el5.style.top = '80%';
+  }
+
+  toggle() {
+  	if(powerOn){
+    	this.myStatus = !this.myStatus;
+      if (this.myStatus === true) {
+        $('#' + this.name).css('backgroundColor', `hsl(${this.hue},90%,80%)`);
+      } 
+      else {
+        $('#' + this.name).css('backgroundColor', `hsl(${this.hue},90%,24%)`);
+      }
+    }
+    else{
+    	$('#' + this.name).css('backgroundColor', `hsl(${this.hue},90%,24%)`);
+    }
+  }
+  toggle2() {
+  	if(powerOn){
+    	this.myStatus = !this.myStatus;
+      if (this.myStatus === true) {
+        $('#' + this.name2).css('backgroundColor', `hsl(${this.hue2},90%,80%)`);
+      } 
+      else {
+        $('#' + this.name2).css('backgroundColor', `hsl(${this.hue2},90%,24%)`);
+      }
+    }
+    else{
+    		$('#' + this.name2).css('backgroundColor', `hsl(${this.hue2},90%,24%)`);
+    }
+  }
+  toggle3() {
+  	if(powerOn){
+    	this.myStatus = !this.myStatus;
+      if (this.myStatus === true) {
+        $('#' + this.name3).css('backgroundColor', `hsl(${this.hue3},90%,80%)`);
+      } 
+      else {
+        $('#' + this.name3).css('backgroundColor', `hsl(${this.hue3},90%,24%)`);
+      }
+    }
+    else{
+    		$('#' + this.name3).css('backgroundColor', `hsl(${this.hue3},90%,24%)`);
+    }
+  }
+  toggle4() {
+  	if(powerOn){
+    	this.myStatus = !this.myStatus;
+      if (this.myStatus === true) {
+        $('#' + this.name4).css('backgroundColor', `hsl(${this.hue4},90%,80%)`);
+      } 
+      else {
+        $('#' + this.name4).css('backgroundColor', `hsl(${this.hue4},90%,24%)`);
+      }
+    }
+    else{
+    	$('#' + this.name4).css('backgroundColor', `hsl(${this.hue4},90%,24%)`);
+    }
+  }
+  toggle5() {
+  	if(powerOn){
+    	this.myStatus = !this.myStatus;
+      if (this.myStatus === true) {
+        $('#' + this.name5).css('backgroundColor', `hsl(${this.hue5},90%,80%)`);
+      } 
+      else {
+       $('#' + this.name5).css('backgroundColor', `hsl(${this.hue5},90%,24%)`);
+      }
+    }
+    else{
+    		$('#' + this.name5).css('backgroundColor', `hsl(${this.hue5},90%,24%)`);
+    }
+  }
+
+  startBlink() {
+    var that = this;
+    setInterval(function() {that.toggle();}, (Math.random()+1) *1000);//複雜模式，如果要簡單模式只要把(Math.random()+1) *1000改成500即可
+    setInterval(function() {that.toggle2();}, (Math.random()+1) *1000);
+    setInterval(function() {that.toggle3();}, (Math.random()+1) *1000);
+    setInterval(function() {that.toggle4();}, (Math.random()+1) *1000);
+    setInterval(function() {that.toggle5();}, (Math.random()+1) *1000);
+  }
+}
+
+
+Lamp.id = 0; // class variable
+
+let ll = new Lamp();
+//ll.startBlink();
+var powerOn = false;
+
+$('#power').click(function () {
+  powerOn = !powerOn;
+	ll.startBlink()
+ // lamps.forEach(function (item) { item.startBlink(); });
+});
+
+
+    </script>
+</body>
+
+</html>
