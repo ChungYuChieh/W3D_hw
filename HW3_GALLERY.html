@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewpoints" content="width=device-width,initial-scale=1.0">
+        <title>Document</title>
+        <style>
+        #info{
+          position:absolute;
+          top:0px;
+          width:10px;
+          text-align:center;
+          color:black;
+        }
+        body{
+          overflow:hidden;
+        }
+        </style>
+        </head>
+        <body>
+        <div id="info">
+        <button id='switch'>Using THIRD</button>
+        <br>
+        <input type = range min=30 max=80 id='lighting'>Brightness
+        </div>
+        <script src="https://threejs.org/build/three.min.js"></script>
+        <script src="https://threejs.org/examples/js/controls/OrbitControls.js">
+        </script>
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script>
+var renderer, scene, camera;
+var spotLight;
+var viewPoint=true,on=true;
+var loader=new THREE.TextureLoader();
+
+
+/////////////////////////////////////////
+//燈泡的CLASS
+class Light{
+
+	constructor(x,y,z,draw){
+  	this.light=new THREE.SpotLight(0xffffff,0.8,0,Math.PI/8,0.974);
+    this.light.position.set(x,y,z);
+    this.light.target=draw;
+    scene.add(this.light);
+    
+    let lampTEX=loader.load("https://i.imgur.com/QcqafjT.jpg");
+    var lampGroup=new THREE.Group();
+    var lamp=new THREE.Mesh(new THREE.CylinderGeometry (11.94,5.637,16.856,40),new THREE.MeshBasicMaterial({map:lampTEX,transparent:true}));
+    lamp.rotation.x=Math.PI/2;
+    lamp.position.set(0,0,30);
+
+//    scene.add(lamp);
+
+    lampGroup.add(lamp);
+   
+   
+    lampGroup.position.copy(this.light.position);
+    lampGroup.lookAt(draw.position);
+    scene.add(lampGroup);
+  }
+  turn(n){
+  	this.light.intensity=n;
+  }
+}
+
+/////////////////////////////////////////
+init();
+animate();
+
+$('#switch').click(function(){
+	viewPoint=!viewPoint;
+  if(viewPoint) $('#switch').text('using THIRD');
+  else $('#switch').text('using ORBIT');
+})
+
+$('#lighting').change(function(){
+	lightness=$(this).val()/100;
+  console.log(lightness);
+  lamps.forEach(function(item){item.turn(lightness);});
+})
+
+
+function init() {
+  scene = new THREE.Scene();
+
+/*
+let lampMap=loader.load("https://i.imgur.com/QcqafjT.jpg");
+    var lampGroup=new THREE.Group();
+    var lamp=new THREE.Mesh(new THREE.CylinderGeometry (10.5,20,20),new THREE.MeshBasicMaterial({map:lampMap,transparent:true}));
+scene.add( lamp );
+*/
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0xBBBBBB);//虛空背景顏色
+  document.body.appendChild(renderer.domElement);
+  
+
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);//設定CAMERA(鏡頭)的參數
+
+  camera.position.y = 1200;
+  camera.position.z = 1200;  // camera at (0,0,500)  要有position下面的OrbitControls才能作用
+  let controls = new THREE.OrbitControls(camera, renderer.domElement);//連接滑鼠與鏡頭的控制
+////////////////////////////////////////////////////////////////////
+	
+  eyeCamera=new THREE.PerspectiveCamera(40,window.innerWidth / window.innerHeight,1,1000);
+  eyeCamera.position.set(-850,170,100);
+  eyeCamera.lookAt(-850,180,303);
+
+////////////////////////////////////////////////////////////////////
+
+  /*
+	var gridXZ =new THREE.GridHelper(1500,30,'red','black');
+  scene.add(gridXZ);
+  */
+	//放地板
+  var wood=loader.load('https://i.imgur.com/qYRxPQ3.jpg');
+
+
+  wood.wrapS = THREE.RepeatWrapping;
+ // texture.wrapT = THREE.RepeatWrapping;
+	wood.repeat.set(145, 66);
+  
+  mesh = new THREE.Mesh(new THREE.PlaneGeometry(2900, 660), 
+  new THREE.MeshBasicMaterial({map: wood,side: THREE.DoubleSide}))
+  mesh.rotation.x = -Math.PI / 2;
+  scene.add(mesh);
+
+
+  ////////////////////////////////////
+  //牆壁
+  var boarder1=new THREE.Mesh(new THREE.BoxGeometry(2900, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder1.position.set(0,151,-317.5);
+  
+  var boarder2=new THREE.Mesh(new THREE.BoxGeometry(430, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder2.position.set(1437.5,151,-115);
+  boarder2.rotation.y=Math.PI/2;
+  
+  var boarder3=new THREE.Mesh(new THREE.BoxGeometry(130, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder3.position.set(1437.5,151,265);
+  boarder3.rotation.y=Math.PI/2;
+
+  var boarder4=new THREE.Mesh(new THREE.BoxGeometry(330, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder4.position.set(650,151,-165);
+  boarder4.rotation.y=Math.PI/2;
+  
+ 	var boarder5=new THREE.Mesh(new THREE.BoxGeometry(130, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder5.position.set(650,151,265);
+  boarder5.rotation.y=Math.PI/2;
+  
+  var boarder6=new THREE.Mesh(new THREE.BoxGeometry(330, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder6.position.set(-560,151,-165);
+  boarder6.rotation.y=Math.PI/2;
+  
+  var boarder7=new THREE.Mesh(new THREE.BoxGeometry(130, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder7.position.set(-560,151,265);
+  boarder7.rotation.y=Math.PI/2;
+  
+  var boarder8=new THREE.Mesh(new THREE.BoxGeometry(350, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder8.position.set(-1437.5,151,-155);
+  boarder8.rotation.y=Math.PI/2;
+  
+  var boarder9=new THREE.Mesh(new THREE.BoxGeometry(130, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder9.position.set(-1437.5,151,265);
+  boarder9.rotation.y=Math.PI/2;
+  
+  var boarder10=new THREE.Mesh(new THREE.BoxGeometry(800, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder10.position.set(1050,151,317.5);
+
+  
+  var boarder11=new THREE.Mesh(new THREE.BoxGeometry(470, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder11.position.set(-801,151,317.5);
+
+  var boarder12=new THREE.Mesh(new THREE.BoxGeometry(234, 300, 25 ),new THREE.MeshLambertMaterial());
+  boarder12.position.set(-1333,151,317.5);
+
+  scene.add(boarder1,boarder2,boarder3,boarder4,boarder5,boarder6,boarder7,boarder8,boarder9,boarder10,boarder11,boarder12);
+  
+  
+  ////////////////////////////////////
+  
+  //畫框
+  let frameTEXT=loader.load("https://i.imgur.com/jG2oSM3.png");
+  var frame =new THREE.Mesh(new THREE.PlaneGeometry(100,150),new THREE.MeshBasicMaterial({map:frameTEXT,transparent:true}));
+  
+  var frame1=frame.clone();
+  frame1.position.set(1424,180,-125);
+  frame1.rotation.y=-Math.PI/2;
+  
+  var frame2=frame.clone();
+  frame2.position.set(636.5,180,-145);
+  frame2.rotation.y=-Math.PI/2;
+  
+  var frame3=frame.clone();
+  frame3.position.set(-573.5,180,-145);
+  frame3.rotation.y=-Math.PI/2;
+  
+  var frame4=frame.clone();
+  frame4.position.set(663.5,180,-145);
+  frame4.rotation.y=Math.PI/2;
+  
+  var frame5=frame.clone();
+  frame5.position.set(-546.5,180,-145);
+  frame5.rotation.y=Math.PI/2;
+  
+  var frame6=frame.clone();
+  frame6.position.set(-1424,180,-145);
+  frame6.rotation.y=Math.PI/2;
+  
+  var frame7=frame.clone();
+  frame7.position.set(1050,180,-304);
+
+  
+  var frame8=frame.clone();
+  frame8.position.set(0,180,-304);
+ 
+  
+  var frame9=frame.clone();
+  frame9.position.set(-1050,180,-304);
+
+  
+  var frame10=frame.clone();
+  frame10.position.set(1050,180,304);
+  frame10.rotation.y=Math.PI;
+  
+  var frame11=frame.clone();
+  frame11.position.set(-850,180,304);
+  frame11.rotation.y=Math.PI;
+  
+  scene.add(frame1,frame2,frame3,frame4,frame5,frame6,frame7,frame8,frame9,frame10,frame11);
+  
+  /////////////////////////////////////////
+  //畫
+  let pic1=loader.load("https://i.imgur.com/Q7rZzIj.jpg")
+  var draw1 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic1,transparent:true}));
+  draw1.rotation.y=-Math.PI/2;
+  draw1.position.set(1423,180,-125);
+  
+  let pic2=loader.load("https://i.imgur.com/3Q2vLqz.jpg")
+  var draw2 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic2,transparent:true}));
+  draw2.rotation.y=-Math.PI/2;
+  draw2.position.set(635.5,180,-145);
+  
+  let pic3=loader.load("https://i.imgur.com/5dewLM9.jpg")
+  var draw3 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic3,transparent:true}));
+  draw3.rotation.y=-Math.PI/2;
+  draw3.position.set(-574.5,180,-145);
+  
+  let pic4=loader.load("https://i.imgur.com/hQumov3.jpg")
+  var draw4 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic4,transparent:true}));
+  draw4.rotation.y=Math.PI/2;
+  draw4.position.set(664.5,180,-145);
+  
+  let pic5=loader.load("https://i.imgur.com/6PpiYxe.jpg")
+  var draw5 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic5,transparent:true}));
+  draw5.rotation.y=Math.PI/2;
+  draw5.position.set(-545.5,180,-145);
+  
+  let pic6=loader.load("https://i.imgur.com/oppfEvX.jpg")
+  var draw6 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic6,transparent:true}));
+  draw6.rotation.y=Math.PI/2;
+  draw6.position.set(-1423,180,-145);
+  
+  let pic7=loader.load("https://i.imgur.com/DZShBYq.jpg")
+  var draw7 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic7,transparent:true}));
+  draw7.position.set(1050,180,-303);
+  
+  let pic8=loader.load("https://i.imgur.com/BLLyAU2.jpg")
+  var draw8 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic8,transparent:true}));
+  draw8.position.set(0,180,-303);
+  
+  let pic9=loader.load("https://i.imgur.com/8XUSlpn.jpg")
+  var draw9 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic9,transparent:true}));
+  draw9.position.set(-1050,180,-303);
+  
+  let pic10=loader.load("https://i.imgur.com/O84i9Cn.jpg")
+  var draw10 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic10,transparent:true}));
+  draw10.rotation.y=Math.PI;
+  draw10.position.set(1050,180,303);
+  
+  let pic11=loader.load("https://i.imgur.com/2peQKjU.jpg")
+  var draw11 =new THREE.Mesh(new THREE.PlaneGeometry(75,112.5),new THREE.MeshBasicMaterial({map:pic11,transparent:true}));
+  draw11.rotation.y=Math.PI;
+  draw11.position.set(-850,180,303);
+ 
+ 
+  scene.add(draw1,draw2,draw3,draw4,draw5,draw6,draw7,draw8,draw9,draw10,draw11);
+  
+  ///////////////////////////////////////////////////
+  //燈光
+  const directionalLight=new THREE.DirectionalLight(0xffffff,0.5);
+  directionalLight.position.set(1000,70,700);
+  const directionalLight2=new THREE.DirectionalLight(0xffffff,0.5);
+  directionalLight2.position.set(-1000,70,-700);
+  scene.add(directionalLight,directionalLight2);
+  
+  const sphereSize=3;
+  
+  lamps=[];
+  var light1=new Light(1050,350,0,draw1);
+  var light2=new Light(45,350,0,draw2);
+  var light3=new Light(-1000,350,0,draw3);
+  var light4=new Light(1050,350,0,draw4);
+  var light5=new Light(45,350,0,draw5);
+  var light6=new Light(-1000,350,0,draw6);
+  var light7=new Light(1050,350,0,draw7);
+  var light8=new Light(45,350,0,draw8);
+  var light9=new Light(-1000,350,0,draw9);
+  var light10=new Light(1050,350,0,draw10);
+  var light11=new Light(-1000,350,0,draw11);
+  
+
+  lamps.push(light1,light2,light3,light4,light5,light6,light7,light8,light9,light10,light11);
+  
+  ////////////////////////////////
+  //做個燈架
+  
+  let stickTEX=loader.load("https://i.imgur.com./WBMDbAT.jpg");
+  var stick1=new THREE.Mesh(new THREE.CylinderGeometry (20,20,5,64),new THREE.MeshBasicMaterial({map:stickTEX,transparent:true}));
+  stick1.position.set(1050,345,0);
+  
+  var stick2=new THREE.Mesh(new THREE.CylinderGeometry (20,20,5,64),new THREE.MeshBasicMaterial({map:stickTEX,transparent:true}));
+  stick2.position.set(-1000,345,0);
+  
+  var stick3=new THREE.Mesh(new THREE.CylinderGeometry (20,20,5,64),new THREE.MeshBasicMaterial({map:stickTEX,transparent:true}));
+  stick3.position.set(45,345,0);
+  
+  var stick4=new THREE.Mesh(new THREE.CylinderGeometry (7,7,2050,4),new THREE.MeshBasicMaterial({map:stickTEX,transparent:true}));
+  stick4.position.set(45,345,0);
+  stick4.rotation.x=Math.PI/2;
+  stick4.rotation.z=Math.PI/2;
+  
+  scene.add(stick1,stick2,stick3,stick4);
+  ///////////////////////////////
+  //椅子
+  var chair = buildChair();
+  var chair1 = chair.clone();
+  chair1.position.set (440, 1, 260);
+  var chair2 = chair.clone();
+  chair2.position.set (-300, 1, 260);
+  
+  scene.add (chair1,chair2);
+
+
+  
+}
+
+function buildChair() {
+  var group = new THREE.Group();
+  var woodTex = new THREE.TextureLoader().load("https://i.imgur.com/breQExY.jpg");
+  
+  var boxTop = new THREE.Mesh(new THREE.BoxGeometry(350, 30, 100), new THREE.MeshLambertMaterial({ map: woodTex }));
+  var boxLeg1 = new THREE.Mesh(new THREE.BoxGeometry(60, 65, 100), new THREE.MeshLambertMaterial({map: woodTex }));
+  var boxLeg2 = new THREE.Mesh(new THREE.BoxGeometry(60, 65, 100), new THREE.MeshLambertMaterial({map: woodTex}));
+  boxTop.position.set(0, 80, 0);
+  boxLeg1.position.set(-145, 32.5, 0);
+  boxLeg2.position.set(145, 32.5, 0);
+  group.add(boxTop, boxLeg1, boxLeg2);
+  return group;
+}
+
+function animate() {
+
+  requestAnimationFrame(animate);
+  if(viewPoint)
+  	renderer.render(scene, camera);
+  else
+  	renderer.render(scene, eyeCamera);
+  }
+
+
+</script>
+</body>
+</html>
