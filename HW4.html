@@ -1,0 +1,459 @@
+<script src="https://threejs.org/build/three.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+<script src="https://threejs.org/examples/js/controls/PointerLockControls.js"></script>
+<script src="https://unpkg.com/three@0.129.0/examples/js/loaders/GLTFLoader.js"></script>
+
+
+<h1 style="text-align:center"> Homework 4 Click the Selector first and Use WASD to control the object direction. </h1>
+<hr>
+<div id="container" style="float:left; margin:3px; width:60vw; height:60vw">
+</div>
+
+<div style="float:left; margin-left: 10px; width:32vw;">
+
+  <!-- <div>
+    Sphere radius:
+    <input id="radius" type="range" min=3 max=30 value=5>
+    <span id='radiusPrint'>
+</span>
+    <br>
+  </div> -->
+  <br>
+  <div style='background-color:purple'>
+    Object Selector:
+    <br>
+    <input type=radio name='c' value='red' id="red" >Chair
+    <input type=radio name='c' value='blue'id="blue">Table
+  </div>
+  <br>
+  <button id='clear' style="width:45%">Clear</button>
+  <button id='restore' style="width:45%">Restore</button>
+  <button id='save' style="width:45%">Save</button>
+  
+</div>
+<script>
+
+//////////////////////
+const onKeyDown = function ( event ) {
+
+  switch ( event.code ) {
+  
+    case 'ArrowUp':
+    case 'KeyW':
+      moveForward = true;
+      cyl.rotation.x+=Math.PI/20;
+      break;
+  
+    case 'ArrowLeft':
+    case 'KeyA':
+      moveLeft = true;
+      cyl.rotation.y+=Math.PI/20;
+      break;
+  
+    case 'ArrowDown':
+    case 'KeyS':
+      moveBackward = true;
+      cyl.rotation.x-=Math.PI/20;
+      break;
+  
+    case 'ArrowRight':
+    case 'KeyD':
+      moveRight = true;
+      cyl.rotation.y-=Math.PI/20;
+      break;
+  
+
+    
+  
+  }
+  
+  };
+  ///////////////////////
+  const onKeyUp = function ( event ) {
+  
+  switch ( event.code ) {
+  
+    case 'ArrowUp':
+    case 'KeyW':
+      moveForward = false;
+      break;
+  
+    case 'ArrowLeft':
+    case 'KeyA':
+      moveLeft = false;
+      break;
+  
+    case 'ArrowDown':
+    case 'KeyS':
+      moveBackward = false;
+      break;
+  
+    case 'ArrowRight':
+    case 'KeyD':
+      moveRight = false;
+      break;
+  
+  }
+  
+  };
+  //////////////////////////////////
+  document.addEventListener( 'keydown', onKeyDown );
+  document.addEventListener( 'keyup', onKeyUp );
+
+
+
+
+  $('#radius').change(function() {
+    $('#radiusPrint').text($(this).val());
+  });
+  
+  var camera, scene, renderer, controls;
+  var raycaster = new THREE.Raycaster();
+  var mouse = new THREE.Vector2();
+  var pickplane;
+  var cyl;
+  var spheres = [];
+  var mode=0;
+  init();
+  animate();
+  
+  $('#clear').click(function() {
+  
+    spheres.forEach(function(sphere) {
+      scene.remove(sphere);
+    });
+    spheres = [];
+  
+  });
+  
+  $('#save').click(function() {
+  
+    var states = [];
+    spheres.forEach(function(sphere) {
+      states.push(sphere.name);
+    });
+  
+    localStorage.setItem('stateStr', JSON.stringify(states));
+  
+  });
+
+  $('#red').click(function() {
+    scene.remove( cyl );
+    animate();
+     mode=0;
+     var pc = new THREE.GLTFLoader();
+     //https://raw.githubusercontent.com/ChungYuChieh/W3D_hw/master/GLBS/cover_chair.glb
+     //https://raw.githubusercontent.com/baronwatts/models/master/robber.glb
+     pc.load( 'https://raw.githubusercontent.com/ChungYuChieh/W3D_hw/master/GLBS/cover_chair.glb', function ( gltf ) {
+             gltf.scene.traverse( function( node ) {
+               if ( node instanceof THREE.Mesh ) { 
+                 node.castShadow = true; 
+                 node.material.side = THREE.DoubleSide;
+                 //node.material.color=color2;
+                 //node.material.emissive=color2;
+               }
+             });  
+ 
+       cyl= gltf.scene;
+ //      cyl.rotation.y=Math.PI/2;
+      cyl.position.set(-20, 0, 20);
+       cyl.scale.set(0.4,0.4,0.4);
+       scene.add(cyl);
+     }, undefined, function ( error ) {
+ 
+       console.error( error );
+ 
+     } );
+     //scene.add(cyl);
+   
+
+  });
+  $('#blue').click(function() {
+    scene.remove( cyl );
+    animate();
+     mode=1;
+     var pc = new THREE.GLTFLoader();
+     //https://raw.githubusercontent.com/ChungYuChieh/W3D_hw/master/GLBS/wooden_table.glb
+     //https://raw.githubusercontent.com/baronwatts/models/master/robber.glb
+     pc.load( 'https://raw.githubusercontent.com/ChungYuChieh/W3D_hw/master/GLBS/wooden_table.glb', function ( gltf ) {
+             gltf.scene.traverse( function( node ) {
+               if ( node instanceof THREE.Mesh ) { 
+                 node.castShadow = true; 
+                 node.material.side = THREE.DoubleSide;
+                 //node.material.color=color2;
+                 //node.material.emissive=color2;
+               }
+             });  
+ 
+       cyl= gltf.scene;
+       cyl.rotation.y=Math.PI/2;
+       cyl.position.set(-20, 40, 20);
+       cyl.scale.set(30,30,30);
+       scene.add(cyl);
+     }, undefined, function ( error ) {
+ 
+       console.error( error );
+ 
+     } );
+   
+  });
+
+
+  $('#restore').click(function() {
+  
+    var states = JSON.parse(localStorage.getItem('stateStr'));
+    states.forEach(function(stateStr) {
+      console.log(stateStr);
+      var state = JSON.parse(stateStr);
+      buildSphere(state.rad, new THREE.Vector3(state.pos[0], 0, state.pos[1]),state.rot,state.mode);
+    });
+  
+  });
+  
+  function buildSphere(rad, pos,rot,mode) {
+    console.log("aabbcc");
+    //var sphere = new THREE.Mesh(new THREE.SphereGeometry(rad, 20, 20), new THREE.MeshNormalMaterial());
+   ////////////////////////////////////////  
+   if(mode==0){
+    var pcf = new THREE.GLTFLoader();
+    //https://github.com/ChungYuChieh/W3D_hw/blob/master/GLBS/cover_chair.glb
+    //https://raw.githubusercontent.com/baronwatts/models/master/robber.glb
+    pcf.load( 'https://raw.githubusercontent.com/ChungYuChieh/W3D_hw/master/GLBS/cover_chair.glb', function ( gltf ) {
+            gltf.scene.traverse( function( node ) {
+              if ( node instanceof THREE.Mesh ) { 
+                node.castShadow = true; 
+                node.material.side = THREE.DoubleSide;
+                //node.material.color=color2;
+                //node.material.emissive=color2;
+              }
+            });  
+
+      sphere= gltf.scene;
+      console.log(rot);
+      sphere.rotation.x=rot._x;
+      sphere.rotation.y=rot._y;
+      sphere.rotation.z=rot._z;
+      //{isEuler: true, _x: 0, _y: 1.5707963267948966, _z: 0.5026548245743668, _order: 'XYZ'} 回傳的key必需"一模一樣"
+      console.log("sphere",sphere.rotation);
+      //sphere.rotation.y=Math.PI/2;
+      sphere.scale.set(0.4,0.4,0.4);
+      var prop = {
+        rad: rad,
+        pos: [pos.x, pos.z],
+        rot: rot,
+        mode:mode
+      };
+      console.log(prop);
+      sphere.name = JSON.stringify(prop);
+      console.log(sphere.name);
+    
+      spheres.push(sphere);
+      sphere.position.copy(pos);
+
+
+      scene.add(sphere);
+    }, undefined, function ( error ) {
+
+      console.error( error );
+
+    } );
+  }
+  else if(mode==1){    
+    var table = new THREE.GLTFLoader();
+    //https://raw.githubusercontent.com/baronwatts/models/master/robber.glb
+    table.load( 'https://raw.githubusercontent.com/ChungYuChieh/W3D_hw/master/GLBS/wooden_table.glb', function ( gltf ) {
+            gltf.scene.traverse( function( node ) {
+              if ( node instanceof THREE.Mesh ) { 
+                //node.castShadow = true; 
+                //node.material.side = THREE.DoubleSide;
+                //node.material.color=color2;
+                //node.material.emissive=color2;
+              }
+            });  
+
+      sphere2= gltf.scene;
+      
+      sphere2.rotation.x=rot._x;
+      sphere2.rotation.y=rot._y;
+      sphere2.rotation.z=rot._z;
+      sphere2.scale.set(30,30,30);
+      var prop = {
+        rad: rad,
+        pos: [pos.x,pos.z],
+        rot: rot,
+        mode:mode
+      };
+      console.log(prop);
+      sphere2.name = JSON.stringify(prop);
+      console.log(sphere2.name);
+    
+      spheres.push(sphere2);
+      sphere2.position.copy(pos);
+
+
+      scene.add(sphere2);
+    }, undefined, function ( error ) {
+
+      console.error( error );
+
+    } );
+  }
+    ////////////////////////////////////////////////
+//    var prop = {
+//      rad: rad,
+//      pos: [pos.x, pos.z]
+//    };
+//    console.log(prop);
+//    sphere.name = JSON.stringify(prop);
+//    console.log(sphere.name);
+  
+//    spheres.push(sphere);
+//    sphere.position.copy(pos);
+  
+  }
+  
+  function init() {
+    
+    var ww = $("#container").innerWidth();
+    var hh = $("#container").innerHeight();
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(ww, hh);
+    renderer.setClearColor(0x888888);
+    $("#container").append(renderer.domElement);
+  
+    ////////////////////////////////////////////////
+  
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(50, ww / hh, 1, 1000);
+    camera.position.z = 500;
+    scene.add(camera);
+    ///////////////////////////////////////////////////
+    
+    artlamplight2 = new THREE.SpotLight(0xffffff, 5, 5000, Math.PI/5, 1,0);
+    artlamplight2.position.set(0,500,0);
+    artlamplight2.castShadow=true;
+    scene.add(artlamplight2);
+    ////////////////////////////////////////////////////
+    artlamplight3 = new THREE.SpotLight(0xffffff, 5, 5000, Math.PI/5, 1,0);
+    artlamplight3.position.set(500,0,500);
+    artlamplight3.castShadow=true;
+    scene.add(artlamplight3);
+    ///////////////////////////////////////////////
+    artlamplight4 = new THREE.SpotLight(0xffffff, 5, 5000, Math.PI/5, 1,0);
+    artlamplight4.position.set(0,500,500);
+    artlamplight4.castShadow=true;
+    scene.add(artlamplight4);
+    /////////////////////////////////////////////////
+    artlamplight5 = new THREE.SpotLight(0xffffff, 5, 5000, Math.PI/5, 1,0);
+    artlamplight5.position.set(0,-500,500);
+    artlamplight5.castShadow=true;
+    scene.add(artlamplight5);
+    ///////////////////////////////////////////////
+    artlamplight6 = new THREE.SpotLight(0xffffff, 5, 5000, Math.PI/5, 1,0);
+    artlamplight6.position.set(-500,500,500);
+    artlamplight6.castShadow=true;
+    scene.add(artlamplight6);
+    ////////////////////////////////////////////////////
+    var loader = new THREE.TextureLoader();
+    var floorGroup = new THREE.Group();
+    var grassMap = loader.load ('https://i.imgur.com/ADGE9Ix.jpg');
+    var grassAlpha = loader.load ('https://i.imgur.com/mGdIosi.png?1');
+    var grassFloor = new THREE.Mesh (new THREE.PlaneGeometry (500,500), new THREE.MeshBasicMaterial({map: grassMap, transparent:true, alphaMap: grassAlpha}));
+    
+    var stoneMap = loader.load ('https://i.imgur.com/T1ZbCDb.jpg');
+    var stoneAlpha = loader.load ('https://i.imgur.com/D9alJjG.png');
+    var stoneFloor = new THREE.Mesh (new THREE.PlaneGeometry (500,500), new THREE.MeshBasicMaterial({map: stoneMap, transparent:true, alphaMap: stoneAlpha}));
+    floorGroup.add (grassFloor, stoneFloor);
+    floorGroup.position.set(0,-6,0);
+    scene.add (floorGroup);
+    
+    floorGroup.rotation.x = -Math.PI/2;
+
+  
+    /*var cyl_geom = new THREE.RingGeometry(5, 10, 32);
+    var cyl_mat = new THREE.MeshBasicMaterial({
+      color: 0xff1234,
+    });
+    cyl = new THREE.Mesh(cyl_geom, cyl_mat);
+    cyl.rotation.x = -Math.PI/2;
+    cyl.position.set(-20, 0, 20);*/
+
+
+  
+    pickplane = new THREE.Mesh(new THREE.PlaneGeometry(500, 500),
+      new THREE.MeshBasicMaterial({
+        color: 0xff1234
+      }));
+    pickplane.rotation.x = -Math.PI / 2;
+    scene.add(pickplane);
+    pickplane.material.visible = false;
+  
+   // var gridXZ = new THREE.GridHelper(200, 20, 'red', 'white');
+   // scene.add(gridXZ);
+  
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    window.addEventListener('resize', onWindowResize, false);
+    window.addEventListener('mousemove', onDocumentMouseMove, false);
+    window.addEventListener('mousedown', onDocumentMouseDown, false);
+  }
+  
+  function onWindowResize() {
+    var ww = $("#container").innerWidth();
+    var hh = $("#container").innerHeight();
+  
+    camera.aspect = ww / hh;
+    camera.updateProjectionMatrix();
+    renderer.setSize(ww, hh);
+  }
+  
+  function onDocumentMouseMove(event) {
+  
+    event.preventDefault();
+  
+    var viewportPos = $('#container').get(0).getBoundingClientRect();
+    mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
+    mouse.y = -((event.clientY - viewportPos.top) / $('#container').innerHeight()) * 2 + 1;
+  
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObject(pickplane);
+    if (intersects.length > 0) {
+   
+      cyl.position.copy(intersects[0].point);
+      cyl.position.y = 2;
+    }
+  }
+  
+  function onDocumentMouseDown(event) {
+  
+    event.preventDefault();
+  
+    var viewportPos = $('#container').get(0).getBoundingClientRect();
+    mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
+    mouse.y = -((event.clientY - viewportPos.top) / $('#container').innerHeight()) * 2 + 1;
+  
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObject(pickplane);
+    if (intersects.length > 0) {
+      cyl.position.copy(intersects[0].point);
+      buildSphere(10, intersects[0].point,cyl.rotation,mode);
+    }
+  }
+  
+  function animate() {
+  
+    controls.update();
+    requestAnimationFrame(animate);
+    render();
+  }
+  
+  function render() {
+    renderer.render(scene, camera);
+  }
+  
+
+
+
+
+
+</script>
